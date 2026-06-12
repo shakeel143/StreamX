@@ -150,155 +150,14 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     bottomBar = {
-                        Column {
-                            // Persistent Premium Floating Player Control Hub (visible from all screens)
-                            if (activeVideoId.isNotEmpty()) {
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .border(1.dp, TubeRed.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
-                                    color = DarkSurface
-                                ) {
-                                    Column(modifier = Modifier.padding(10.dp)) {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                                modifier = Modifier.weight(1f)
-                                            ) {
-                                                Icon(
-                                                    imageVector = if (isMusicMode) Icons.Default.MusicNote else Icons.Default.PlayCircle,
-                                                    contentDescription = null,
-                                                    tint = TubeRed,
-                                                    modifier = Modifier.size(16.dp)
-                                                )
-                                                Column {
-                                                    Text(
-                                                        text = activeTitle,
-                                                        color = Color.White,
-                                                        fontSize = 12.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        maxLines = 1
-                                                    )
-                                                    Text(
-                                                        text = activeChannel,
-                                                        color = TextSecondary,
-                                                        fontSize = 10.sp,
-                                                        maxLines = 1
-                                                    )
-                                                }
-                                            }
-                                            
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically,
-                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                            ) {
-                                                // Toggle Subtitles
-                                                IconButton(
-                                                    onClick = { viewModel.toggleSubtitles() },
-                                                    modifier = Modifier.size(32.dp)
-                                                ) {
-                                                    Icon(
-                                                        imageVector = if (subtitlesEnabled) Icons.Default.ClosedCaption else Icons.Default.ClosedCaptionDisabled,
-                                                        contentDescription = "Toggle Subtitles",
-                                                        tint = if (subtitlesEnabled) TubeRed else Color.White,
-                                                        modifier = Modifier.size(16.dp)
-                                                    )
-                                                }
-
-                                                // Download
-                                                val dlProgress = activeDownloads[activeVideoId]
-                                                IconButton(
-                                                    onClick = {
-                                                        viewModel.downloadVideoForOffline(activeVideoId, activeTitle, activeChannel, isMusicMode)
-                                                    },
-                                                    modifier = Modifier.size(32.dp)
-                                                ) {
-                                                    if (dlProgress != null) {
-                                                        CircularProgressIndicator(
-                                                            progress = dlProgress,
-                                                            strokeWidth = 2.dp,
-                                                            color = TubeAmber,
-                                                            modifier = Modifier.size(16.dp)
-                                                        )
-                                                    } else {
-                                                        Icon(
-                                                            imageVector = Icons.Default.DownloadForOffline,
-                                                            contentDescription = "Download Video",
-                                                            tint = Color.White,
-                                                            modifier = Modifier.size(16.dp)
-                                                        )
-                                                    }
-                                                }
-
-                                                // Play / Pause
-                                                IconButton(
-                                                    onClick = { viewModel.togglePlayback() },
-                                                    modifier = Modifier.size(32.dp)
-                                                ) {
-                                                    Icon(
-                                                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                                        contentDescription = "Control",
-                                                        tint = Color.White,
-                                                        modifier = Modifier.size(20.dp)
-                                                    )
-                                                }
-                                            }
-                                        }
-
-                                        // Subtitles block
-                                        if (subtitlesEnabled && subtitleText.isNotEmpty()) {
-                                            Text(
-                                                text = subtitleText,
-                                                color = Color.Yellow,
-                                                fontSize = 9.sp,
-                                                fontWeight = FontWeight.Medium,
-                                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(vertical = 4.dp)
-                                            )
-                                        }
-
-                                        // Progress slider bar
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            Text(text = timeFormatted, color = Color.White, fontSize = 9.sp)
-                                            Slider(
-                                                value = progress,
-                                                onValueChange = { viewModel.seekTo(it) },
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .padding(horizontal = 4.dp)
-                                                    .height(20.dp),
-                                                colors = SliderDefaults.colors(
-                                                    thumbColor = TubeRed,
-                                                    activeTrackColor = TubeRed,
-                                                    inactiveTrackColor = LightSurface
-                                                )
-                                            )
-                                            Text(text = "04:00", color = TextSecondary, fontSize = 9.sp)
-                                        }
-                                    }
-                                }
-                            }
-
-                            // Navigation tabs bar
-                            NavigationBar(
-                                containerColor = OledBackground,
-                                contentColor = Color.White,
-                                modifier = Modifier
-                                    .testTag("navigation_tab_bar")
-                                    .windowInsetsPadding(WindowInsets.navigationBars)
-                            ) {
+                        // Navigation tabs bar
+                        NavigationBar(
+                            containerColor = OledBackground,
+                            contentColor = Color.White,
+                            modifier = Modifier
+                                .testTag("navigation_tab_bar")
+                                .windowInsetsPadding(WindowInsets.navigationBars)
+                        ) {
                                 NavigationBarItem(
                                     selected = currentTab == Tab.Browse,
                                     onClick = { viewModel.selectTab(Tab.Browse) },
@@ -377,8 +236,7 @@ class MainActivity : ComponentActivity() {
                                         unselectedTextColor = TextSecondary
                                     ),
                                     modifier = Modifier.testTag("nav_item_you")
-                                )
-                            }
+                            )
                         }
                     }
                 ) { innerPadding ->

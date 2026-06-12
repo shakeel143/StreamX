@@ -73,40 +73,108 @@ fun YouTubeWebView(
 
     fun injectAdBlocker(view: WebView?) {
         view?.let { webView ->
+            val cssRules = StringBuilder()
+            cssRules.append("ytm-pivot-bar, .ytm-pivot-bar, ytm-pivot-bar-renderer, .ytm-pivot-bar-renderer, pivot-bar-renderer, .pivot-bar-renderer, #pivot-bar, .pivot-bar, ytm-bottom-navigation, .ytm-bottom-navigation, ytm-bottom-bar, .ytm-bottom-bar, ytm-bottom-bar-renderer, .ytm-bottom-bar-renderer, div[role=\"tablist\"], .pivot-bar-item, #koya-bottom-navigation, .koya-bottom-navigation, .ytm-pivot-bar-item-renderer, ytm-pivot-bar-item-renderer { display: none !important; }")
+            
+            if (isAdBlockingActive) {
+                cssRules.append(" div.ad-container, ytd-companion-ad-renderer, .video-ads, .ytp-ad-module, .ytp-ad-overlay-container, .ytp-ad-image-overlay { display: none !important; }")
+            }
+
             val cssSelector = """
-                var style = document.createElement('style');
-                style.innerHTML = 'div.ad-container, ytd-companion-ad-renderer, .video-ads, .ytp-ad-module, .ytp-ad-overlay-container, .ytp-ad-image-overlay, ytm-pivot-bar, .ytm-pivot-bar, ytm-pivot-bar-renderer, pivot-bar-renderer { display: none !important; }';
-                document.head.appendChild(style);
+                (function() {
+                    var style = document.getElementById('youtube-cleaner-custom-style');
+                    if (!style) {
+                        style = document.createElement('style');
+                        style.id = 'youtube-cleaner-custom-style';
+                        (document.head || document.documentElement).appendChild(style);
+                    }
+                    style.innerHTML = '${cssRules.toString()}';
+
+                    // Continuously ensure any dynamically injected bottom nav elements or ads are hidden matching our selectors
+                    setInterval(function() {
+                        var selectors = [
+                            'ytm-pivot-bar', '.ytm-pivot-bar', 'ytm-pivot-bar-renderer', '.ytm-pivot-bar-renderer',
+                            'pivot-bar-renderer', '.pivot-bar-renderer', '#pivot-bar', '.pivot-bar',
+                            'ytm-bottom-navigation', '.ytm-bottom-navigation', 'ytm-bottom-bar', '.ytm-bottom-bar',
+                            'ytm-bottom-bar-renderer', '.ytm-bottom-bar-renderer', 'div[role="tablist"]',
+                            '#koya-bottom-navigation', '.koya-bottom-navigation', 'ytm-pivot-bar-item-renderer', '.ytm-pivot-bar-item-renderer'
+                        ];
+                        selectors.forEach(function(sel) {
+                            var elements = document.querySelectorAll(sel);
+                            for (var i = 0; i < elements.length; i++) {
+                                elements[i].style.setProperty('display', 'none', 'important');
+                            }
+                        });
+                    }, 150);
+                })();
             """.trimIndent()
             webView.evaluateJavascript(cssSelector, null)
 
-            val jsSkipAd = """
-                (function() {
-                    setInterval(function() {
-                        var skipBtn = document.querySelector('.ytp-ad-skip-button') || document.querySelector('.ytp-ad-skip-button-modern');
-                        if (skipBtn) {
-                            skipBtn.click();
-                            console.log('TubeCompanion programmatically blocked and bypassed YouTube Ad element.');
-                        }
-                        var video = document.querySelector('video');
-                        if (video && video.currentTime > 0) {
-                            var adPlaying = document.querySelector('.ad-showing') || document.querySelector('.ytp-ad-player-overlay');
-                            if (adPlaying) {
-                                if (isFinite(video.duration)) {
-                                    video.currentTime = video.duration - 0.1;
+            if (isAdBlockingActive) {
+                val jsSkipAd = """
+                    (function() {
+                        setInterval(function() {
+                            var skipBtn = document.querySelector('.ytp-ad-skip-button') || document.querySelector('.ytp-ad-skip-button-modern');
+                            if (skipBtn) {
+                                skipBtn.click();
+                                console.log('TubeCompanion programmatically blocked and bypassed YouTube Ad element.');
+                            }
+                            var video = document.querySelector('video');
+                            if (video && video.currentTime > 0) {
+                                var adPlaying = document.querySelector('.ad-showing') || document.querySelector('.ytp-ad-player-overlay');
+                                if (adPlaying) {
+                                    if (isFinite(video.duration)) {
+                                        video.currentTime = video.duration - 0.1;
+                                    }
                                 }
                             }
-                        }
-                    }, 500);
-                })();
-            """.trimIndent()
-            webView.evaluateJavascript(jsSkipAd, null)
+                        }, 500);
+                    })();
+                """.trimIndent()
+                webView.evaluateJavascript(jsSkipAd, null)
+            }
         }
     }
 
-    // Reroute whenever the web-mode changes
-    LaunchedEffect(isMusicMode) {
+    // Reroute whenever the web-mode changes and set up continuous absolute hiding loop
+    LaunchedEffect(isMusicMode, webViewInstance, isAdBlockingActive) {
         webViewInstance?.loadUrl(baseYoutubeUrl)
+        
+        webViewInstance?.let { webView ->
+            while (true) {
+                val cssRules = "ytm-pivot-bar, .ytm-pivot-bar, ytm-pivot-bar-renderer, .ytm-pivot-bar-renderer, pivot-bar-renderer, .pivot-bar-renderer, #pivot-bar, .pivot-bar, ytm-bottom-navigation, .ytm-bottom-navigation, ytm-bottom-bar, .ytm-bottom-bar, ytm-bottom-bar-renderer, .ytm-bottom-bar-renderer, div[role=\"tablist\"], .pivot-bar-item, #koya-bottom-navigation, .koya-bottom-navigation, .ytm-pivot-bar-item-renderer, ytm-pivot-bar-item-renderer { display: none !important; }"
+                val loopJs = """
+                    (function() {
+                        var style = document.getElementById('youtube-cleaner-custom-style');
+                        if (!style) {
+                            style = document.createElement('style');
+                            style.id = 'youtube-cleaner-custom-style';
+                            (document.head || document.documentElement).appendChild(style);
+                        }
+                        style.innerHTML = '$cssRules';
+
+                        var selectors = [
+                            'ytm-pivot-bar', '.ytm-pivot-bar', 'ytm-pivot-bar-renderer', '.ytm-pivot-bar-renderer',
+                            'pivot-bar-renderer', '.pivot-bar-renderer', '#pivot-bar', '.pivot-bar',
+                            'ytm-bottom-navigation', '.ytm-bottom-navigation', 'ytm-bottom-bar', '.ytm-bottom-bar',
+                            'ytm-bottom-bar-renderer', '.ytm-bottom-bar-renderer', 'div[role="tablist"]',
+                            '#koya-bottom-navigation', '.koya-bottom-navigation', 'ytm-pivot-bar-item-renderer', '.ytm-pivot-bar-item-renderer'
+                        ];
+                        selectors.forEach(function(sel) {
+                            var elements = document.querySelectorAll(sel);
+                            for (var i = 0; i < elements.length; i++) {
+                                elements[i].style.setProperty('display', 'none', 'important');
+                            }
+                        });
+                    })();
+                """.trimIndent()
+                
+                webView.post {
+                    webView.evaluateJavascript(loopJs, null)
+                }
+                kotlinx.coroutines.delay(400)
+            }
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize().background(OledBackground)) {
@@ -148,8 +216,8 @@ fun YouTubeWebView(
                                     currentUrl = it
                                     parseYoutubeUrl(it)
                                 }
+                                injectAdBlocker(view)
                                 if (isAdBlockingActive) {
-                                    injectAdBlocker(view)
                                     onAdBlocked()
                                 }
                             }
