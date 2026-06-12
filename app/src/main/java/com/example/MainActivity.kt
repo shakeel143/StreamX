@@ -95,20 +95,14 @@ class MainActivity : ComponentActivity() {
                                         verticalAlignment = Alignment.CenterVertically,
                                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Box(
+                                        androidx.compose.foundation.Image(
+                                            painter = androidx.compose.ui.res.painterResource(id = R.drawable.img_streamx_logo_1781246041009),
+                                            contentDescription = "StreamX Logo",
                                             modifier = Modifier
-                                                .size(width = 30.dp, height = 22.dp)
-                                                .clip(RoundedCornerShape(6.dp))
-                                                .background(TubeRed),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.PlayArrow,
-                                                contentDescription = null,
-                                                tint = Color.White,
-                                                modifier = Modifier.size(14.dp)
-                                            )
-                                        }
+                                                .size(28.dp)
+                                                .clip(RoundedCornerShape(6.dp)),
+                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                        )
                                         Text(
                                             text = "StreamX",
                                             color = Color.White,

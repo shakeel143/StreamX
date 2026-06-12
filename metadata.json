@@ -1,5 +1,5 @@
 {
-  "name": "Tube Companion",
+  "name": "StreamX",
   "description": "A premium, ad-free, offline-ready companion and web controller for YouTube and YouTube Music with PiP, background streaming, playlist management, and personalized AI recommendations.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
