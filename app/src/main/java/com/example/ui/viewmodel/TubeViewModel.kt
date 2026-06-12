@@ -18,10 +18,9 @@ import kotlinx.coroutines.launch
 
 sealed interface Tab {
     object Browse : Tab
-    object Player : Tab
-    object Recommendations : Tab
-    object Playlists : Tab
-    object Offline : Tab
+    object Shorts : Tab
+    object YTMusic : Tab
+    object You : Tab
 }
 
 class TubeViewModel(application: Application) : AndroidViewModel(application) {
@@ -61,7 +60,7 @@ class TubeViewModel(application: Application) : AndroidViewModel(application) {
         _currentTab.value = tab
     }
 
-    // --- GEMINI RECOMMENDATION ENGINE ---
+    // --- CURATED PLATFORM STREAM LIST ---
     private val _aiRecommendationList = MutableStateFlow<List<Recommendation>>(repository.defaultSeeds)
     val aiRecommendationList: StateFlow<List<Recommendation>> = _aiRecommendationList.asStateFlow()
 
@@ -72,19 +71,8 @@ class TubeViewModel(application: Application) : AndroidViewModel(application) {
     val aiErrorLog: StateFlow<String?> = _aiErrorLog.asStateFlow()
 
     fun triggerAiRecommendations() {
-        viewModelScope.launch {
-            _isLoadingRecommendations.value = true
-            _aiErrorLog.value = null
-            try {
-                val list = repository.fetchPersonalizedRecommendations(viewHistory.value)
-                _aiRecommendationList.value = list
-            } catch (e: Exception) {
-                _aiErrorLog.value = e.localizedMessage ?: "Connection Timeout"
-                _aiRecommendationList.value = repository.defaultSeeds
-            } finally {
-                _isLoadingRecommendations.value = false
-            }
-        }
+        // AI Recommendations bypassed, returning premium secure seeds
+        _aiRecommendationList.value = repository.defaultSeeds
     }
 
     // --- ACTIVE PLAYBACK HUD DECK ---

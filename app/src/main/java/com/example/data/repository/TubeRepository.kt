@@ -108,6 +108,10 @@ class TubeRepository(private val tubeDao: TubeDao) {
 
     // --- GEMINI POWERED DYNAMIC PERSONALIZATION FEED ---
     suspend fun fetchPersonalizedRecommendations(history: List<HistoryEntity>): List<Recommendation> = withContext(Dispatchers.IO) {
+        return@withContext defaultSeeds
+    }
+
+    private suspend fun fetchPersonalizedRecommendationsDummy(history: List<HistoryEntity>): List<Recommendation> = withContext(Dispatchers.IO) {
         if (history.isEmpty()) {
             return@withContext defaultSeeds
         }

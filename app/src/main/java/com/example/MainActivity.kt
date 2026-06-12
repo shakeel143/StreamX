@@ -87,131 +87,206 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
-                        if (currentTab != Tab.Player) {
+                        if (currentTab != Tab.Browse) {
                             @OptIn(ExperimentalMaterial3Api::class)
                             TopAppBar(
-                                title = {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                    ) {
-                                        androidx.compose.foundation.Image(
-                                            painter = androidx.compose.ui.res.painterResource(id = R.drawable.img_streamx_logo_1781246041009),
-                                            contentDescription = "StreamX Logo",
+                                    title = {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            androidx.compose.foundation.Image(
+                                                painter = androidx.compose.ui.res.painterResource(id = R.drawable.img_streamx_logo_1781246041009),
+                                                contentDescription = "StreamX Logo",
+                                                modifier = Modifier
+                                                    .size(28.dp)
+                                                    .clip(RoundedCornerShape(6.dp)),
+                                                contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                            )
+                                            Text(
+                                                text = "StreamX",
+                                                color = Color.White,
+                                                fontSize = 20.sp,
+                                                fontWeight = FontWeight.Black,
+                                                letterSpacing = (-0.5).sp
+                                            )
+                                        }
+                                    },
+                                    actions = {
+                                        IconButton(onClick = {}) {
+                                            Icon(imageVector = Icons.Default.Cast, contentDescription = "Cast", tint = Color.White, modifier = Modifier.size(20.dp))
+                                        }
+                                        IconButton(onClick = {}) {
+                                            Icon(imageVector = Icons.Default.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(20.dp))
+                                        }
+                                        IconButton(onClick = {}) {
+                                            Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White, modifier = Modifier.size(20.dp))
+                                        }
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Box(
                                             modifier = Modifier
                                                 .size(28.dp)
-                                                .clip(RoundedCornerShape(6.dp)),
-                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                                        )
-                                        Text(
-                                            text = "StreamX",
-                                            color = Color.White,
-                                            fontSize = 20.sp,
-                                            fontWeight = FontWeight.Black,
-                                            letterSpacing = (-0.5).sp
-                                        )
-                                    }
-                                },
-                                actions = {
-                                    IconButton(onClick = {}) {
-                                        Icon(imageVector = Icons.Default.Cast, contentDescription = "Cast", tint = Color.White, modifier = Modifier.size(20.dp))
-                                    }
-                                    IconButton(onClick = {}) {
-                                        Icon(imageVector = Icons.Default.Notifications, contentDescription = "Notifications", tint = Color.White, modifier = Modifier.size(20.dp))
-                                    }
-                                    IconButton(onClick = {}) {
-                                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search", tint = Color.White, modifier = Modifier.size(20.dp))
-                                    }
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .size(28.dp)
-                                            .clip(RoundedCornerShape(50))
-                                            .background(GlowBlue),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = "JD",
-                                            color = Color.Black,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                },
-                                colors = TopAppBarDefaults.topAppBarColors(
-                                    containerColor = OledBackground,
-                                    scrolledContainerColor = OledBackground,
-                                    navigationIconContentColor = Color.White,
-                                    titleContentColor = Color.White,
-                                    actionIconContentColor = Color.White
+                                                .clip(RoundedCornerShape(50))
+                                                .background(GlowBlue),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = "JD",
+                                                color = Color.Black,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                    },
+                                    colors = TopAppBarDefaults.topAppBarColors(
+                                        containerColor = OledBackground,
+                                        scrolledContainerColor = OledBackground,
+                                        navigationIconContentColor = Color.White,
+                                        titleContentColor = Color.White,
+                                        actionIconContentColor = Color.White
+                                    )
                                 )
-                            )
                         }
                     },
                     bottomBar = {
                         Column {
-                            // Sticky bottom Mini-Player (Floating style capsule)
-                            AnimatedVisibility(
-                                visible = activeVideoId.isNotEmpty() && currentTab != Tab.Player,
-                                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-                                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
-                            ) {
-                                Row(
+                            // Persistent Premium Floating Player Control Hub (visible from all screens)
+                            if (activeVideoId.isNotEmpty()) {
+                                Surface(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 8.dp, vertical = 4.dp)
                                         .clip(RoundedCornerShape(12.dp))
-                                        .background(MutedSurface)
-                                        .border(1.dp, BorderWhiteNormal, RoundedCornerShape(12.dp))
-                                        .clickable { viewModel.selectTab(Tab.Player) }
-                                        .padding(10.dp)
-                                        .testTag("floating_mini_player"),
-                                    verticalAlignment = Alignment.CenterVertically
+                                        .border(1.dp, TubeRed.copy(alpha = 0.4f), RoundedCornerShape(12.dp)),
+                                    color = DarkSurface
                                 ) {
-                                    Icon(
-                                        imageVector = if (isMusicMode) Icons.Default.MusicNote else Icons.Default.SmartDisplay,
-                                        contentDescription = null,
-                                        tint = if (isMusicMode) TubeAmber else TubeRed,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(10.dp))
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(
-                                            text = activeTitle,
-                                            color = Color.White,
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            maxLines = 1
-                                        )
-                                        Text(
-                                            text = activeChannel,
-                                            color = TextSecondary,
-                                            fontSize = 10.sp,
-                                            maxLines = 1
-                                        )
-                                        // Small progressive loader
-                                        LinearProgressIndicator(
-                                            progress = progress,
-                                            color = TubeRed,
-                                            trackColor = LightSurface,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(top = 4.dp)
-                                                .height(2.dp)
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    IconButton(
-                                        onClick = { viewModel.togglePlayback() },
-                                        modifier = Modifier.size(36.dp)
-                                    ) {
-                                        Icon(
-                                            imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                            contentDescription = "Quick Play/Pause",
-                                            tint = Color.White,
-                                            modifier = Modifier.size(20.dp)
-                                        )
+                                    Column(modifier = Modifier.padding(10.dp)) {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                modifier = Modifier.weight(1f)
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (isMusicMode) Icons.Default.MusicNote else Icons.Default.PlayCircle,
+                                                    contentDescription = null,
+                                                    tint = TubeRed,
+                                                    modifier = Modifier.size(16.dp)
+                                                )
+                                                Column {
+                                                    Text(
+                                                        text = activeTitle,
+                                                        color = Color.White,
+                                                        fontSize = 12.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        maxLines = 1
+                                                    )
+                                                    Text(
+                                                        text = activeChannel,
+                                                        color = TextSecondary,
+                                                        fontSize = 10.sp,
+                                                        maxLines = 1
+                                                    )
+                                                }
+                                            }
+                                            
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                // Toggle Subtitles
+                                                IconButton(
+                                                    onClick = { viewModel.toggleSubtitles() },
+                                                    modifier = Modifier.size(32.dp)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = if (subtitlesEnabled) Icons.Default.ClosedCaption else Icons.Default.ClosedCaptionDisabled,
+                                                        contentDescription = "Toggle Subtitles",
+                                                        tint = if (subtitlesEnabled) TubeRed else Color.White,
+                                                        modifier = Modifier.size(16.dp)
+                                                    )
+                                                }
+
+                                                // Download
+                                                val dlProgress = activeDownloads[activeVideoId]
+                                                IconButton(
+                                                    onClick = {
+                                                        viewModel.downloadVideoForOffline(activeVideoId, activeTitle, activeChannel, isMusicMode)
+                                                    },
+                                                    modifier = Modifier.size(32.dp)
+                                                ) {
+                                                    if (dlProgress != null) {
+                                                        CircularProgressIndicator(
+                                                            progress = dlProgress,
+                                                            strokeWidth = 2.dp,
+                                                            color = TubeAmber,
+                                                            modifier = Modifier.size(16.dp)
+                                                        )
+                                                    } else {
+                                                        Icon(
+                                                            imageVector = Icons.Default.DownloadForOffline,
+                                                            contentDescription = "Download Video",
+                                                            tint = Color.White,
+                                                            modifier = Modifier.size(16.dp)
+                                                        )
+                                                    }
+                                                }
+
+                                                // Play / Pause
+                                                IconButton(
+                                                    onClick = { viewModel.togglePlayback() },
+                                                    modifier = Modifier.size(32.dp)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                                                        contentDescription = "Control",
+                                                        tint = Color.White,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+
+                                        // Subtitles block
+                                        if (subtitlesEnabled && subtitleText.isNotEmpty()) {
+                                            Text(
+                                                text = subtitleText,
+                                                color = Color.Yellow,
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 4.dp)
+                                            )
+                                        }
+
+                                        // Progress slider bar
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Text(text = timeFormatted, color = Color.White, fontSize = 9.sp)
+                                            Slider(
+                                                value = progress,
+                                                onValueChange = { viewModel.seekTo(it) },
+                                                modifier = Modifier
+                                                    .weight(1f)
+                                                    .padding(horizontal = 4.dp)
+                                                    .height(20.dp),
+                                                colors = SliderDefaults.colors(
+                                                    thumbColor = TubeRed,
+                                                    activeTrackColor = TubeRed,
+                                                    inactiveTrackColor = LightSurface
+                                                )
+                                            )
+                                            Text(text = "04:00", color = TextSecondary, fontSize = 9.sp)
+                                        }
                                     }
                                 }
                             }
@@ -229,11 +304,11 @@ class MainActivity : ComponentActivity() {
                                     onClick = { viewModel.selectTab(Tab.Browse) },
                                     icon = {
                                         Icon(
-                                            imageVector = if (currentTab == Tab.Browse) Icons.Filled.Language else Icons.Outlined.Language,
-                                            contentDescription = "Browse"
+                                            imageVector = if (currentTab == Tab.Browse) Icons.Filled.Home else Icons.Outlined.Home,
+                                            contentDescription = "Home"
                                         )
                                     },
-                                    label = { Text("Browse", fontSize = 10.sp) },
+                                    label = { Text("Home", fontSize = 10.sp) },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = TubeRed,
                                         selectedTextColor = TubeRed,
@@ -245,15 +320,15 @@ class MainActivity : ComponentActivity() {
                                 )
 
                                 NavigationBarItem(
-                                    selected = currentTab == Tab.Player,
-                                    onClick = { viewModel.selectTab(Tab.Player) },
+                                    selected = currentTab == Tab.Shorts,
+                                    onClick = { viewModel.selectTab(Tab.Shorts) },
                                     icon = {
                                         Icon(
-                                            imageVector = if (currentTab == Tab.Player) Icons.Filled.PlayCircleFilled else Icons.Outlined.PlayCircle,
-                                            contentDescription = "Player"
+                                            imageVector = if (currentTab == Tab.Shorts) Icons.Filled.OfflineShare else Icons.Outlined.OfflineShare,
+                                            contentDescription = "Shorts"
                                         )
                                     },
-                                    label = { Text("Player", fontSize = 10.sp) },
+                                    label = { Text("Shorts", fontSize = 10.sp) },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = TubeRed,
                                         selectedTextColor = TubeRed,
@@ -261,19 +336,19 @@ class MainActivity : ComponentActivity() {
                                         unselectedIconColor = TextSecondary,
                                         unselectedTextColor = TextSecondary
                                     ),
-                                    modifier = Modifier.testTag("nav_item_player")
+                                    modifier = Modifier.testTag("nav_item_shorts")
                                 )
 
                                 NavigationBarItem(
-                                    selected = currentTab == Tab.Recommendations,
-                                    onClick = { viewModel.selectTab(Tab.Recommendations) },
+                                    selected = currentTab == Tab.YTMusic,
+                                    onClick = { viewModel.selectTab(Tab.YTMusic) },
                                     icon = {
                                         Icon(
-                                            imageVector = if (currentTab == Tab.Recommendations) Icons.Filled.AutoAwesome else Icons.Outlined.AutoAwesome,
-                                            contentDescription = "AI Feed"
+                                            imageVector = if (currentTab == Tab.YTMusic) Icons.Filled.MusicNote else Icons.Outlined.MusicNote,
+                                            contentDescription = "YT Music"
                                         )
                                     },
-                                    label = { Text("AI Feed", fontSize = 10.sp) },
+                                    label = { Text("YT Music", fontSize = 10.sp) },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = TubeRed,
                                         selectedTextColor = TubeRed,
@@ -281,19 +356,19 @@ class MainActivity : ComponentActivity() {
                                         unselectedIconColor = TextSecondary,
                                         unselectedTextColor = TextSecondary
                                     ),
-                                    modifier = Modifier.testTag("nav_item_recs")
+                                    modifier = Modifier.testTag("nav_item_ytmusic")
                                 )
 
                                 NavigationBarItem(
-                                    selected = currentTab == Tab.Playlists,
-                                    onClick = { viewModel.selectTab(Tab.Playlists) },
+                                    selected = currentTab == Tab.You,
+                                    onClick = { viewModel.selectTab(Tab.You) },
                                     icon = {
                                         Icon(
-                                            imageVector = if (currentTab == Tab.Playlists) Icons.Filled.QueueMusic else Icons.Outlined.QueueMusic,
-                                            contentDescription = "Playlists"
+                                            imageVector = if (currentTab == Tab.You) Icons.Filled.AccountCircle else Icons.Outlined.AccountCircle,
+                                            contentDescription = "You"
                                         )
                                     },
-                                    label = { Text("Playlists", fontSize = 10.sp) },
+                                    label = { Text("You", fontSize = 10.sp) },
                                     colors = NavigationBarItemDefaults.colors(
                                         selectedIconColor = TubeRed,
                                         selectedTextColor = TubeRed,
@@ -301,27 +376,7 @@ class MainActivity : ComponentActivity() {
                                         unselectedIconColor = TextSecondary,
                                         unselectedTextColor = TextSecondary
                                     ),
-                                    modifier = Modifier.testTag("nav_item_playlists")
-                                )
-
-                                NavigationBarItem(
-                                    selected = currentTab == Tab.Offline,
-                                    onClick = { viewModel.selectTab(Tab.Offline) },
-                                    icon = {
-                                        Icon(
-                                            imageVector = if (currentTab == Tab.Offline) Icons.Filled.DownloadForOffline else Icons.Outlined.OfflinePin,
-                                            contentDescription = "Offline"
-                                        )
-                                    },
-                                    label = { Text("Offline", fontSize = 10.sp) },
-                                    colors = NavigationBarItemDefaults.colors(
-                                        selectedIconColor = TubeRed,
-                                        selectedTextColor = TubeRed,
-                                        indicatorColor = LightSurface,
-                                        unselectedIconColor = TextSecondary,
-                                        unselectedTextColor = TextSecondary
-                                    ),
-                                    modifier = Modifier.testTag("nav_item_offline")
+                                    modifier = Modifier.testTag("nav_item_you")
                                 )
                             }
                         }
@@ -337,10 +392,9 @@ class MainActivity : ComponentActivity() {
                         when (currentTab) {
                             Tab.Browse -> {
                                 YouTubeWebView(
-                                    onVideoDetected = { videoId, detectedTitle ->
-                                        // Instantly start inside background-enabled native player
-                                        viewModel.startPlayback(videoId, detectedTitle, "YouTube Browser Stream")
-                                        viewModel.selectTab(Tab.Player)
+                                    isMusicMode = false,
+                                    onVideoDetected = { videoId, title ->
+                                        viewModel.startPlayback(videoId, title, "YouTube Web Player", false)
                                     },
                                     onAdBlocked = {
                                         viewModel.incrementBlockedAds()
@@ -349,64 +403,35 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
-                            Tab.Player -> {
-                                val dlProgress = activeDownloads[activeVideoId]
-                                NativePlayer(
-                                    videoId = activeVideoId,
-                                    title = activeTitle,
-                                    channel = activeChannel,
-                                    isPlaying = isPlaying,
-                                    progress = progress,
-                                    timeFormatted = timeFormatted,
-                                    audioQuality = audioQuality,
-                                    subtitlesEnabled = subtitlesEnabled,
-                                    subtitleLanguage = subtitleLanguage,
-                                    subtitleText = subtitleText,
-                                    isMusicMode = isMusicMode,
-                                    onTogglePlay = { viewModel.togglePlayback() },
-                                    onSeek = { viewModel.seekTo(it) },
-                                    onSetQuality = { viewModel.setAudioQuality(it) },
-                                    onSetLanguage = { viewModel.setSubtitleLanguage(it) },
-                                    onToggleSubtitles = { viewModel.toggleSubtitles() },
-                                    onDownload = {
-                                        viewModel.downloadVideoForOffline(activeVideoId, activeTitle, activeChannel, isMusicMode)
-                                    },
-                                    downloadProgress = dlProgress,
-                                    isOfflineMode = offlineSimulated,
-                                    onShare = {}
-                                )
-                            }
-
-                            Tab.Recommendations -> {
-                                StatsDashboard(
-                                    historyList = historyList,
-                                    recommendations = recommendations,
-                                    isLoadingRecommendations = isLoadingRecommendations,
-                                    blockedAdsCount = blockedAdsCount,
-                                    offlineSimulated = offlineSimulated,
-                                    syncStatus = syncStatus,
-                                    isSyncing = isSyncing,
-                                    adBlockingActive = adBlockingActive,
-                                    onToggleAdBlock = { viewModel.toggleAdBlocking() },
-                                    onToggleOfflineSimulated = { viewModel.toggleOfflineSimulated() },
-                                    onSyncNow = { viewModel.syncDevicesNow() },
-                                    onTriggerRecommendations = { viewModel.triggerAiRecommendations() },
-                                    onSelectVideo = { vidId, title, creator, isMusic ->
-                                        // Add bookmark to playlist if desired
-                                        if (playlists.isNotEmpty() && !offlineSimulated) {
-                                            // Auto sync download or add to first playlist folder
-                                            viewModel.addItemToPlaylist(playlists.first().id, vidId, title, creator, isMusic)
-                                        }
+                            Tab.Shorts -> {
+                                ShortsShelf(
+                                    onSelectShortStream = { vidId, title, creator, isMusic ->
                                         viewModel.startPlayback(vidId, title, creator, isMusic)
-                                        viewModel.selectTab(Tab.Player)
                                     },
-                                    onDeleteHistoryItem = { viewModel.deleteHistoryItem(it) },
-                                    onClearHistory = { viewModel.clearAllHistory() }
+                                    activeVideoId = activeVideoId,
+                                    isPlaying = isPlaying,
+                                    onTogglePlay = { viewModel.togglePlayback() }
                                 )
                             }
 
-                            Tab.Playlists -> {
-                                PlaylistShelf(
+                            Tab.YTMusic -> {
+                                YTMusicShelf(
+                                    recommendations = recommendations,
+                                    activeVideoId = activeVideoId,
+                                    isPlaying = isPlaying,
+                                    audioQuality = audioQuality,
+                                    onSelectMusicTrack = { vidId, title, creator, isMusic ->
+                                        viewModel.startPlayback(vidId, title, creator, isMusic)
+                                    },
+                                    onAdBlocked = {
+                                        viewModel.incrementBlockedAds()
+                                    },
+                                    adBlockingActive = adBlockingActive
+                                )
+                            }
+
+                            Tab.You -> {
+                                YouProfile(
                                     playlists = playlists,
                                     onCreatePlaylist = { name, desc ->
                                         viewModel.createPlaylist(name, desc)
@@ -414,23 +439,22 @@ class MainActivity : ComponentActivity() {
                                     onDeletePlaylist = { viewModel.deletePlaylist(it) },
                                     getItemsFlow = { viewModel.getItemsForPlaylist(it) },
                                     onRemovePlaylistItem = { viewModel.removePlaylistItem(it) },
-                                    onSelectTrack = { vidId, title, creator, isMusic ->
-                                        viewModel.startPlayback(vidId, title, creator, isMusic)
-                                        viewModel.selectTab(Tab.Player)
-                                    }
-                                )
-                            }
-
-                            Tab.Offline -> {
-                                OfflineShelf(
                                     offlineList = offlineVideosList,
                                     isOfflineModeActive = offlineSimulated,
                                     onToggleOfflineSandbox = { viewModel.toggleOfflineSimulated() },
-                                    onPlayOfflineTrack = { vidId, title, creator, isMusic ->
+                                    onDeleteOfflineMedia = { viewModel.removeOfflineVideo(it) },
+                                    historyList = historyList,
+                                    onDeleteHistoryItem = { viewModel.deleteHistoryItem(it) },
+                                    onClearHistory = { viewModel.clearAllHistory() },
+                                    onPlayTrackNow = { vidId, title, creator, isMusic ->
                                         viewModel.startPlayback(vidId, title, creator, isMusic)
-                                        viewModel.selectTab(Tab.Player)
                                     },
-                                    onDeleteOfflineMedia = { viewModel.removeOfflineVideo(it) }
+                                    blockedAdsCount = blockedAdsCount,
+                                    adBlockingActive = adBlockingActive,
+                                    onToggleAdBlock = { viewModel.toggleAdBlocking() },
+                                    syncStatus = syncStatus,
+                                    isSyncing = isSyncing,
+                                    onSyncNow = { viewModel.syncDevicesNow() }
                                 )
                             }
                         }

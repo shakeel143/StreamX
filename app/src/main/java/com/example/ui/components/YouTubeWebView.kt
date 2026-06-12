@@ -32,11 +32,11 @@ import java.net.URLDecoder
 
 @Composable
 fun YouTubeWebView(
+    isMusicMode: Boolean = false,
     onVideoDetected: (videoId: String, title: String) -> Unit,
     onAdBlocked: () -> Unit,
     isAdBlockingActive: Boolean
 ) {
-    var isMusicMode by remember { mutableStateOf(false) }
     val baseYoutubeUrl = if (isMusicMode) "https://music.youtube.com" else "https://m.youtube.com"
 
     var webViewInstance by remember { mutableStateOf<WebView?>(null) }
@@ -75,7 +75,7 @@ fun YouTubeWebView(
         view?.let { webView ->
             val cssSelector = """
                 var style = document.createElement('style');
-                style.innerHTML = 'div.ad-container, ytd-companion-ad-renderer, .video-ads, .ytp-ad-module, .ytp-ad-overlay-container, .ytp-ad-image-overlay { display: none !important; }';
+                style.innerHTML = 'div.ad-container, ytd-companion-ad-renderer, .video-ads, .ytp-ad-module, .ytp-ad-overlay-container, .ytp-ad-image-overlay, ytm-pivot-bar, .ytm-pivot-bar, ytm-pivot-bar-renderer, pivot-bar-renderer { display: none !important; }';
                 document.head.appendChild(style);
             """.trimIndent()
             webView.evaluateJavascript(cssSelector, null)
@@ -111,124 +111,6 @@ fun YouTubeWebView(
 
     Box(modifier = Modifier.fillMaxSize().background(OledBackground)) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // Segmented Console switcher
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(OledBackground)
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Segment Controls
-                Row(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(LightSurface)
-                        .padding(3.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(if (!isMusicMode) TubeRed else Color.Transparent)
-                            .clickable { isMusicMode = false }
-                            .padding(vertical = 10.dp)
-                            .testTag("yt_mode_toggle"),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "YouTube Video",
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(if (isMusicMode) TubeAmber else Color.Transparent)
-                            .clickable { isMusicMode = true }
-                            .padding(vertical = 10.dp)
-                            .testTag("yt_music_mode_toggle"),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Row(
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.MusicNote,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "YouTube Music",
-                                color = Color.White,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                // Browser Navigation buttons
-                Row {
-                    IconButton(
-                        onClick = { webViewInstance?.goBack() },
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(DarkSurface)
-                            .testTag("webview_backward_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBackIosNew,
-                            contentDescription = "Back",
-                            tint = Color.White,
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(6.dp))
-                    IconButton(
-                        onClick = { webViewInstance?.reload() },
-                        modifier = Modifier
-                            .size(38.dp)
-                            .clip(RoundedCornerShape(50))
-                            .background(DarkSurface)
-                            .testTag("webview_refresh_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Reload",
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
-                }
-            }
-
-            Divider(color = BorderWhiteSmall, thickness = 1.dp)
-
             // Web Content Node
             AndroidView(
                 modifier = Modifier
