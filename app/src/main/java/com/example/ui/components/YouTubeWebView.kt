@@ -198,6 +198,15 @@ fun YouTubeWebView(
                             useWideViewPort = true
                             loadWithOverviewMode = true
                             setSupportZoom(true)
+                            setGeolocationEnabled(false)
+                        }
+                        webChromeClient = object : android.webkit.WebChromeClient() {
+                            override fun onGeolocationPermissionsShowPrompt(
+                                origin: String?,
+                                callback: android.webkit.GeolocationPermissions.Callback?
+                            ) {
+                                callback?.invoke(origin, false, false)
+                            }
                         }
                         webViewClient = object : WebViewClient() {
                             override fun shouldOverrideUrlLoading(
